@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco-Sphere · Carbon Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════ HEADER ═══════════════════ -->
+  <header class="site-header">
+    <div class="header-brand">
+      <span class="brand-icon">🌍</span>
+      <span class="brand-name">Eco<strong>Sphere</strong></span>
+    </div>
+    <div class="header-meta">
+      <span class="header-tagline">Your planet footprint, made visible</span>
+    </div>
+    <div class="header-right">
+      <div class="header-streak-pill" id="header-streak-pill">
+        <span class="header-streak-icon">🔥</span>
+        <span id="header-streak-count">0</span>
+      </div>
+      <div class="header-score-pill">
+        <span class="score-label">Monthly CO₂e</span>
+        <span class="score-value" id="header-co2">—</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════ MAIN LAYOUT ═══════════════════ -->
+  <main class="app-layout">
+
+    <!-- ══════ LEFT PANEL: ECO-SPHERE ══════ -->
+    <aside class="sphere-panel">
+
+      <div class="sphere-wrapper">
+        <canvas id="ecosCanvas" width="420" height="420"></canvas>
+
+        <!-- Floating stat badges -->
+        <div class="sphere-badge badge-top-left" id="badge-level">
+          <span class="badge-icon">🌿</span>
+          <span class="badge-text" id="planet-health-label">Healthy</span>
+        </div>
+        <div class="sphere-badge badge-top-right" id="badge-trees">
+          <span class="badge-icon">🌳</span>
+          <span class="badge-text"><span id="trees-needed">0</span> trees/yr</span>
+        </div>
+      </div>
+
+      <!-- Score Ring -->
+      <div class="score-section">
+        <div class="score-ring-wrap">
+          <svg class="score-ring" viewBox="0 0 120 120" width="120" height="120">
+            <circle class="ring-bg" cx="60" cy="60" r="52" />
+            <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="52"
+              stroke-dasharray="326.7"
+              stroke-dashoffset="326.7" />
+          </svg>
+          <div class="score-ring-inner">
+            <span class="score-co2" id="co2-display">0</span>
+            <span class="score-unit">kg CO₂e/mo</span>
+          </div>
+        </div>
+
+        <div class="score-comparisons">
+          <div class="comp-item">
+            <div class="comp-bar-wrap">
+              <div class="comp-bar" id="comp-bar-global"></div>
+            </div>
+            <span class="comp-label">vs. Global avg <em>~417 kg/mo</em></span>
+          </div>
+          <div class="comp-item">
+            <div class="comp-bar-wrap">
+              <div class="comp-bar comp-bar--target" id="comp-bar-target"></div>
+            </div>
+            <span class="comp-label">vs. 1.5°C target <em>~125 kg/mo</em></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streak Tracker -->
+      <div class="streak-section" id="streak-section">
+        <div class="streak-main">
+          <div class="streak-flame" id="streak-flame">🔥</div>
+          <div class="streak-count-wrap">
+            <span class="streak-count" id="streak-count">0</span>
+            <span class="streak-label">day streak</span>
+          </div>
+          <button class="streak-checkin" id="streak-checkin">Check in today</button>
+        </div>
+
+        <div class="streak-progress-wrap">
+          <div class="streak-progress-track">
+            <div class="streak-progress-fill" id="streak-progress-fill"></div>
+            <div class="streak-milestone-dot" style="left:10%"  data-ms="10"></div>
+            <div class="streak-milestone-dot" style="left:50%"  data-ms="50"></div>
+            <div class="streak-milestone-dot" style="left:100%" data-ms="100"></div>
+          </div>
+          <div class="streak-progress-labels">
+            <span>0</span><span>10</span><span>50</span><span>100</span>
+          </div>
+        </div>
+
+        <div class="badge-shelf" id="badge-shelf">
+          <div class="badge-slot" id="badge-10" data-ms="10">
+            <span class="badge-slot-icon">🥉</span>
+            <span class="badge-slot-label">10 days</span>
+          </div>
+          <div class="badge-slot" id="badge-50" data-ms="50">
+            <span class="badge-slot-icon">🥈</span>
+            <span class="badge-slot-label">50 days</span>
+          </div>
+          <div class="badge-slot" id="badge-100" data-ms="100">
+            <span class="badge-slot-icon">🥇</span>
+            <span class="badge-slot-label">100 days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Insights Engine -->
+      <div class="insights-box" id="insights-box">
+        <div class="insights-header">
+          <span class="insights-icon">⚡</span>
+          <span>Live Insights</span>
+        </div>
+        <ul class="insights-list" id="insights-list">
+          <li class="insight-item insight-neutral">Adjust the sliders to reveal personalized insights.</li>
+        </ul>
+      </div>
+
+    </aside>
+
+    <!-- ══════ RIGHT PANEL: INPUT CONTROLS ══════ -->
+    <section class="controls-panel">
+
+      <!-- ─── SECTION 1: ENERGY ─── -->
+      <div class="ctrl-section" id="section-energy">
+        <div class="ctrl-section-header">
+          <div class="section-icon-wrap energy-icon">⚡</div>
+          <div>
+            <h2 class="ctrl-section-title">Energy</h2>
+            <p class="ctrl-section-sub">Home electricity & solar usage</p>
+          </div>
+          <div class="section-co2-chip" id="energy-chip">0 kg</div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            Grid Electricity
+            <span class="ctrl-value-badge" id="electricity-val">300 kWh/mo</span>
+          </label>
+          <div class="slider-track-wrap">
+            <input type="range" class="eco-slider" id="electricity" min="0" max="1000" value="300" step="10" />
+            <div class="slider-markers">
+              <span>0</span><span>500</span><span>1000 kWh</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            Solar Offset
+            <span class="ctrl-value-badge solar" id="solar-val">0%</span>
+          </label>
+          <div class="slider-track-wrap">
+            <input type="range" class="eco-slider eco-slider--green" id="solar" min="0" max="100" value="0" step="5" />
+            <div class="slider-markers">
+              <span>0%</span><span>50%</span><span>100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">Natural Gas / Heating</label>
+          <div class="toggle-group" id="heating-toggle">
+            <button class="toggle-btn active" data-value="0">None</button>
+            <button class="toggle-btn" data-value="30">Low</button>
+            <button class="toggle-btn" data-value="80">Medium</button>
+            <button class="toggle-btn" data-value="160">High</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 2: MOBILITY ─── -->
+      <div class="ctrl-section" id="section-mobility">
+        <div class="ctrl-section-header">
+          <div class="section-icon-wrap mobility-icon">🚗</div>
+          <div>
+            <h2 class="ctrl-section-title">Mobility</h2>
+            <p class="ctrl-section-sub">How you get around each month</p>
+          </div>
+          <div class="section-co2-chip" id="mobility-chip">0 kg</div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            Petrol/Diesel Car Driving
+            <span class="ctrl-value-badge" id="car-val">0 km/mo</span>
+          </label>
+          <div class="slider-track-wrap">
+            <input type="range" class="eco-slider" id="car-km" min="0" max="3000" value="0" step="50" />
+            <div class="slider-markers">
+              <span>0</span><span>1500</span><span>3000 km</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            EV Driving (grid-charged)
+            <span class="ctrl-value-badge solar" id="ev-val">0 km/mo</span>
+          </label>
+          <div class="slider-track-wrap">
+            <input type="range" class="eco-slider eco-slider--green" id="ev-km" min="0" max="3000" value="0" step="50" />
+            <div class="slider-markers">
+              <span>0</span><span>1500</span><span>3000 km</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">Flights this Month</label>
+          <div class="tap-counter" id="flight-counter">
+            <button class="tap-btn tap-minus" data-target="flights">−</button>
+            <div class="tap-display">
+              <span class="tap-number" id="flights-count">0</span>
+              <span class="tap-sub">short-haul flights</span>
+            </div>
+            <button class="tap-btn tap-plus" data-target="flights">+</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">Public Transit Use</label>
+          <div class="toggle-group" id="transit-toggle">
+            <button class="toggle-btn active" data-value="0">Never</button>
+            <button class="toggle-btn" data-value="1">Sometimes</button>
+            <button class="toggle-btn" data-value="2">Often</button>
+            <button class="toggle-btn" data-value="3">Always</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 3: LIFESTYLE ─── -->
+      <div class="ctrl-section" id="section-lifestyle">
+        <div class="ctrl-section-header">
+          <div class="section-icon-wrap lifestyle-icon">🍽️</div>
+          <div>
+            <h2 class="ctrl-section-title">Lifestyle</h2>
+            <p class="ctrl-section-sub">Diet, consumption & waste habits</p>
+          </div>
+          <div class="section-co2-chip" id="lifestyle-chip">0 kg</div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">Diet Type</label>
+          <div class="diet-selector" id="diet-selector">
+            <button class="diet-btn active" data-value="80">
+              <span class="diet-icon">🥩</span>
+              <span>Heavy Meat</span>
+            </button>
+            <button class="diet-btn" data-value="55">
+              <span class="diet-icon">🍗</span>
+              <span>Omnivore</span>
+            </button>
+            <button class="diet-btn" data-value="35">
+              <span class="diet-icon">🥚</span>
+              <span>Vegetarian</span>
+            </button>
+            <button class="diet-btn" data-value="20">
+              <span class="diet-icon">🥗</span>
+              <span>Vegan</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            New Clothing & Consumer Goods
+            <span class="ctrl-value-badge" id="shopping-val">2 items/mo</span>
+          </label>
+          <div class="slider-track-wrap">
+            <input type="range" class="eco-slider" id="shopping" min="0" max="20" value="2" step="1" />
+            <div class="slider-markers">
+              <span>0</span><span>10</span><span>20 items</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">Recycling Rate</label>
+          <div class="toggle-group" id="recycle-toggle">
+            <button class="toggle-btn" data-value="0">None</button>
+            <button class="toggle-btn active" data-value="1">Some</button>
+            <button class="toggle-btn" data-value="2">Most</button>
+            <button class="toggle-btn" data-value="3">All</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 4: DAILY MICRO-ACTIONS ─── -->
+      <div class="ctrl-section micro-section">
+        <div class="ctrl-section-header">
+          <div class="section-icon-wrap action-icon">✅</div>
+          <div>
+            <h2 class="ctrl-section-title">Daily Micro-Actions</h2>
+            <p class="ctrl-section-sub">Today's habits heal your Eco-Sphere</p>
+          </div>
+          <div class="section-co2-chip section-co2-chip--green" id="actions-chip">-0 kg</div>
+        </div>
+
+        <div class="micro-grid" id="micro-grid">
+          <div class="micro-action" data-reduction="8" data-id="transit">
+            <div class="micro-icon">🚌</div>
+            <div class="micro-text">
+              <strong>Took public transit</strong>
+              <span>Skip the car today</span>
+            </div>
+            <div class="micro-toggle" role="switch" aria-checked="false"></div>
+            <div class="micro-reduction">−8 kg</div>
+          </div>
+
+          <div class="micro-action" data-reduction="3" data-id="unplug">
+            <div class="micro-icon">🔌</div>
+            <div class="micro-text">
+              <strong>Unplugged idle devices</strong>
+              <span>Vampire power eliminated</span>
+            </div>
+            <div class="micro-toggle" role="switch" aria-checked="false"></div>
+            <div class="micro-reduction">−3 kg</div>
+          </div>
+
+          <div class="micro-action" data-reduction="12" data-id="plantmeal">
+            <div class="micro-icon">🥦</div>
+            <div class="micro-text">
+              <strong>Plant-based meal today</strong>
+              <span>Skip the red meat</span>
+            </div>
+            <div class="micro-toggle" role="switch" aria-checked="false"></div>
+            <div class="micro-reduction">−12 kg</div>
+          </div>
+
+          <div class="micro-action" data-reduction="5" data-id="shower">
+            <div class="micro-icon">🚿</div>
+            <div class="micro-text">
+              <strong>Short shower (&lt;5 min)</strong>
+              <span>Save hot water energy</span>
+            </div>
+            <div class="micro-toggle" role="switch" aria-checked="false"></div>
+            <div class="micro-reduction">−5 kg</div>
+          </div>
+
+          <div class="micro-action" data-reduction="6" data-id="local">
+            <div class="micro-icon">🛒</div>
+            <div class="micro-text">
+              <strong>Bought local produce</strong>
+              <span>Cut food-miles emissions</span>
+            </div>
+            <div class="micro-toggle" role="switch" aria-checked="false"></div>
+            <div class="micro-reduction">−6 kg</div>
+          </div>
+
+          <div class="micro-action" data-reduction="4" data-id="lights">
+            <div class="micro-icon">💡</div>
+            <div class="micro-text">
+              <strong>Switched off unused lights</strong>
+              <span>Zero idle electricity</span>
+            </div>
+            <div class="micro-toggle" role="switch" aria-checked="false"></div>
+            <div class="micro-reduction">−4 kg</div>
+          </div>
+
+          <div class="micro-action" data-reduction="10" data-id="wfh">
+            <div class="micro-icon">🏠</div>
+            <div class="micro-text">
+              <strong>Worked from home</strong>
+              <span>Zero commute emissions</span>
+            </div>
+            <div class="micro-toggle" role="switch" aria-checked="false"></div>
+            <div class="micro-reduction">−10 kg</div>
+          </div>
+
+          <div class="micro-action" data-reduction="7" data-id="recycle">
+            <div class="micro-icon">♻️</div>
+            <div class="micro-text">
+              <strong>Sorted all recycling</strong>
+              <span>Max diversion from landfill</span>
+            </div>
+            <div class="micro-toggle" role="switch" aria-checked="false"></div>
+            <div class="micro-reduction">−7 kg</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ═══════════════════ BADGE UNLOCK OVERLAY ═══════════════════ -->
+  <div class="badge-overlay" id="badge-overlay">
+    <div class="badge-overlay-card">
+      <div class="badge-overlay-icon" id="badge-overlay-icon">🥉</div>
+      <div class="badge-overlay-title">Badge Unlocked</div>
+      <div class="badge-overlay-sub" id="badge-overlay-sub">10-Day Streak</div>
+      <button class="badge-overlay-close" id="badge-overlay-close">Nice!</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TOAST NOTIFICATION ═══════════════════ -->
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
